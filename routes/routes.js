@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.route('/api/employees')
     .get(getAllEmployees)
-//     .post(createEmployee)
+    .post(createEmployee)
 // router.route('/:id')
 //     .get(getEmployee)
 //     .patch(updateEmployee)

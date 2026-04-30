@@ -38,7 +38,8 @@ const deleteEmployee = async (req, res) => {
 const createEmployee = async (req, res) => {
     try {
         const employee = await Employee.create(req.body)
-        res.status(201).json({msg: 'Employee added successfully'})
+        res.status(201).json({ employee })
+        //res.status(201).json({msg: 'Employee added successfully'})
     } catch (err) {
         res.status(500).json({msg:err})
     }

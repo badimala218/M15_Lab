@@ -1,15 +1,28 @@
 import mongoose from 'mongoose'
-const EmployeeSchema = new mongoose.Schema({
-    name: {type: String, required: true},
-    extension: {type: Number, required: true},
+const EmployeesSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Name is required']
+    },
+    extension: {
+        type: Number,
+        required: [true, 'Extension is required']
+    },
     email: {
         type: String,
-        required: [true, 'Email is required'],
-        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2.3}})+$/, 
-            'Please enter a valid email address']
+        required: [true, 'Email is required']
     },
-    title: String,
-    dateHired: {type: Date, default: Date.now},
-    currrentlyEmployed: Boolean
+    title: {
+        type: String,
+        required: [true, 'Title is required']
+    },
+    dateHired: {
+        type: Date, 
+        default: Date.now
+    },
+    currentlyEmployed: {
+        type: Boolean,
+        default: true
+    }
 })
-export default ('Employee', EmployeeSchema)
+export default mongoose.model('Employee', EmployeesSchema)

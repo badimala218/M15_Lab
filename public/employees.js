@@ -1,20 +1,3 @@
-const initialEmployees = [{
-  id: 1,
-  name: 'Kokoro Kringle',
-  ext: '4442',
-  email: 'koko@employees.co',
-  title: 'CEO',
-  dateHired: new Date('2018-08-15'),
-  isEmployed: true
-}, {
-  id: 2,
-  name: 'Tomo Row',
-  ext: '4441',
-  email: 'tomo@employees.co',
-  title: 'Acquisitions Manager',
-  dateHired: new Date('2026-08-15'),
-  isEmployed: true
-}];
 class EmployeeFilter extends React.Component {
   render() {
     return /*#__PURE__*/React.createElement("div", null, "This is a placeholder for employee filter.");
@@ -30,11 +13,9 @@ class EmployeeAdd extends React.Component {
     const form = document.forms.employeeAdd;
     const employee = {
       name: form.name.value,
-      ext: form.ext.value,
+      extension: form.ext.value,
       email: form.email.value,
-      title: form.title.value,
-      dateHired: new Date(),
-      isEmployed: true
+      title: form.title.value
     };
     this.props.createEmployee(employee);
     form.name.value = '';
@@ -51,7 +32,8 @@ class EmployeeAdd extends React.Component {
       name: "name"
     }), /*#__PURE__*/React.createElement("br", null), "Extension: ", /*#__PURE__*/React.createElement("input", {
       type: "text",
-      name: "ext"
+      name: "ext",
+      maxLength: 4
     }), /*#__PURE__*/React.createElement("br", null), "Email: ", /*#__PURE__*/React.createElement("input", {
       type: "text",
       name: "email"
@@ -63,16 +45,16 @@ class EmployeeAdd extends React.Component {
 }
 function EmployeeTable(props) {
   const employeeRows = props.employees.map(employee => /*#__PURE__*/React.createElement(EmployeeRow, {
-    key: employee.id,
+    key: employee._id,
     employee: employee
   }));
   return /*#__PURE__*/React.createElement("table", {
     className: "bordered-table"
-  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "ID"), /*#__PURE__*/React.createElement("th", null, "Name"), /*#__PURE__*/React.createElement("th", null, "Ext"), /*#__PURE__*/React.createElement("th", null, "Email"), /*#__PURE__*/React.createElement("th", null, "Title"), /*#__PURE__*/React.createElement("th", null, "Date"), /*#__PURE__*/React.createElement("th", null, "Employed"))), /*#__PURE__*/React.createElement("tbody", null, employeeRows));
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Name"), /*#__PURE__*/React.createElement("th", null, "Ext"), /*#__PURE__*/React.createElement("th", null, "Email"), /*#__PURE__*/React.createElement("th", null, "Title"), /*#__PURE__*/React.createElement("th", null, "Date"), /*#__PURE__*/React.createElement("th", null, "Currently Employed?"))), /*#__PURE__*/React.createElement("tbody", null, employeeRows));
 }
 function EmployeeRow(props) {
   const employee = props.employee;
-  return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, employee.id), /*#__PURE__*/React.createElement("td", null, employee.name), /*#__PURE__*/React.createElement("td", null, employee.ext), /*#__PURE__*/React.createElement("td", null, employee.email), /*#__PURE__*/React.createElement("td", null, employee.title), /*#__PURE__*/React.createElement("td", null, employee.dateHired.toDateString()), /*#__PURE__*/React.createElement("td", null, employee.isEmployed ? 'Yes' : 'No'));
+  return /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, employee.name), /*#__PURE__*/React.createElement("td", null, employee.extension), /*#__PURE__*/React.createElement("td", null, employee.email), /*#__PURE__*/React.createElement("td", null, employee.title), /*#__PURE__*/React.createElement("td", null, employee.dateHired.toDateString()), /*#__PURE__*/React.createElement("td", null, employee.currentlyEmployed ? 'Yes' : 'No'));
 }
 class EmployeeList extends React.Component {
   constructor() {
@@ -86,18 +68,34 @@ class EmployeeList extends React.Component {
     this.loadData();
   }
   loadData() {
-    setTimeout(() => {
-      this.setState({
-        employees: initialEmployees
+    fetch('/api/employees').then(response => response.json()).then(data => {
+      console.log('Total count of employees:', data.count);
+      data.employees.forEach(employee => {
+        employee.dateHired = new Date(employee.dateHired);
       });
-    }, 500);
+      this.setState({
+        employees: data.employees
+      });
+    }).catch(err => {
+      console.log(err);
+    });
   }
   createEmployee(employee) {
-    employee.id = this.state.employees.length + 1;
-    const newEmployeeList = this.state.employees.slice();
-    newEmployeeList.push(employee);
-    this.setState({
-      employees: newEmployeeList
+    fetch('/api/employees', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(employee)
+    }).then(response => response.json()).then(newEmployee => {
+      newEmployee.employee.dateHired = new Date(newEmployee.employee.dateHired);
+      const newEmployees = this.state.employees.concat(newEmployee.employee);
+      this.setState({
+        employees: newEmployees
+      });
+      console.log('Total count of employees:', newEmployees.length);
+    }).catch(err => {
+      console.log(err);
     });
   }
   render() {
