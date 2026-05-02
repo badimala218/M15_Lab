@@ -19,10 +19,7 @@ class EmployeeAdd extends React.Component {
             email: form.email.value,
             title: form.title.value
         }
-        console.log('handleSubmit before')
-        console.log(employee)
         this.props.createEmployee(employee)
-        console.log('handleSubmit after')
         form.name.value = ''
         form.ext.value = ''
         form.email.value = ''
@@ -100,7 +97,6 @@ class EmployeeList extends React.Component {
         .then(response => response.json())
         .then(data => {
             console.log('Total count of employees:', data.count)
-            console.log(data)
             data.employees.forEach(employee => {
                 employee.dateHired = new Date(employee.dateHired)
             })
@@ -109,7 +105,6 @@ class EmployeeList extends React.Component {
         .catch(err => {console.log(err)})
     }
     createEmployee(employee) {
-        console.log(employee)
         fetch('/api/employees', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -120,9 +115,6 @@ class EmployeeList extends React.Component {
             newEmployee.employee.dateHired = new Date(newEmployee.employee.dateHired)
             const newEmployees = this.state.employees.concat(newEmployee.employee)
             this.setState({ employees: newEmployees })
-            console.log(this.state.employees)
-            console.log(newEmployees)
-            console.log(this.state)
             console.log('Total count of employees:', newEmployees.length)
         })
         .catch(err => {console.log(err)})
@@ -130,7 +122,6 @@ class EmployeeList extends React.Component {
     deleteEmployee(id) {
         fetch(`/api/employees/${id}`, {method: 'DELETE'})
         .then(response => {
-            console.log(response)
             if (!response.ok) {
                 console.log('Failed to delete employee.')
             } else {
