@@ -18,9 +18,16 @@ const config = {
         rules: [
             {
                 test: /\.jsx?$/,
+                exclude: /node_modules/,
                 loader: 'babel-loader',
             },
         ],
+    },
+    optimization: {
+        splitChunks: {
+            name: 'vendor',
+            chunks: 'all',
+        },
     },
 }
 
