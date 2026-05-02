@@ -19,7 +19,10 @@ class EmployeeAdd extends React.Component {
             email: form.email.value,
             title: form.title.value
         }
+        console.log('handleSubmit before')
+        console.log(employee)
         this.props.createEmployee(employee)
+        console.log('handleSubmit after')
         form.name.value = ''
         form.ext.value = ''
         form.email.value = ''
@@ -40,7 +43,10 @@ class EmployeeAdd extends React.Component {
 
 function EmployeeTable(props) {
     const employeeRows = props.employees.map(employee => 
-        <EmployeeRow key={employee._id} employee={employee}/>
+        <EmployeeRow 
+            key={employee._id} 
+            employee={employee}
+            deleteEmployee={props.deleteEmployee}/>
     )
     return (
         <table className="bordered-table">
@@ -52,6 +58,7 @@ function EmployeeTable(props) {
                     <th>Title</th>
                     <th>Date</th>
                     <th>Currently Employed?</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -62,15 +69,18 @@ function EmployeeTable(props) {
 }
 
 function EmployeeRow(props) {
-    const employee = props.employee
+    function onDeleteClick() {
+        props.deleteEmployee(props.employee._id)
+    }
     return (
         <tr>
-            <td>{employee.name}</td>
-            <td>{employee.extension}</td>
-            <td>{employee.email}</td>
-            <td>{employee.title}</td>
-            <td>{employee.dateHired.toDateString()}</td>
-            <td>{employee.currentlyEmployed ? 'Yes' : 'No'}</td>
+            <td>{props.employee.name}</td>
+            <td>{props.employee.extension}</td>
+            <td>{props.employee.email}</td>
+            <td>{props.employee.title}</td>
+            <td>{props.employee.dateHired.toDateString()}</td>
+            <td>{props.employee.currentlyEmployed ? 'Yes' : 'No'}</td>
+            <td><button onClick={onDeleteClick}>DELETE</button></td>
         </tr>
     )
 }
@@ -80,6 +90,7 @@ class EmployeeList extends React.Component {
         super()
         this.state = {employees: []}
         this.createEmployee = this.createEmployee.bind(this)
+        this.deleteEmployee = this.deleteEmployee.bind(this)
     }
     componentDidMount() {
         this.loadData()
@@ -89,6 +100,7 @@ class EmployeeList extends React.Component {
         .then(response => response.json())
         .then(data => {
             console.log('Total count of employees:', data.count)
+            console.log(data)
             data.employees.forEach(employee => {
                 employee.dateHired = new Date(employee.dateHired)
             })
@@ -97,6 +109,7 @@ class EmployeeList extends React.Component {
         .catch(err => {console.log(err)})
     }
     createEmployee(employee) {
+        console.log(employee)
         fetch('/api/employees', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -107,9 +120,23 @@ class EmployeeList extends React.Component {
             newEmployee.employee.dateHired = new Date(newEmployee.employee.dateHired)
             const newEmployees = this.state.employees.concat(newEmployee.employee)
             this.setState({ employees: newEmployees })
+            console.log(this.state.employees)
+            console.log(newEmployees)
+            console.log(this.state)
             console.log('Total count of employees:', newEmployees.length)
         })
         .catch(err => {console.log(err)})
+    }
+    deleteEmployee(id) {
+        fetch(`/api/employees/${id}`, {method: 'DELETE'})
+        .then(response => {
+            console.log(response)
+            if (!response.ok) {
+                console.log('Failed to delete employee.')
+            } else {
+                this.loadData()
+            }
+        })
     }
     render() {
         return (
@@ -117,9 +144,9 @@ class EmployeeList extends React.Component {
                 <h1>Employee Management App</h1>
                 <EmployeeFilter/>
                 <hr/>
-                <EmployeeTable employees={this.state.employees}/>
+                <EmployeeTable employees={this.state.employees} deleteEmployee={this.deleteEmployee}/>
                 <hr/>
-                <EmployeeAdd createEmployee={this.createEmployee.bind(this)}/>
+                <EmployeeAdd createEmployee={this.createEmployee}/>
             </React.Fragment>
         )
     }

@@ -29,7 +29,7 @@ const deleteEmployee = async (req, res) => {
         if (!employee) {
             return res.status(404).json({msg: `No employee with Id ${employeeId} found.`})
         }
-        return res.status(404).json({msg: 'Employee successfully deleted'})
+        return res.status(200).json({msg: 'Employee successfully deleted'})
     } catch (err) {
         res.status(500).json({msg:err})
     }
