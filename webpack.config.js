@@ -32,6 +32,7 @@ const config = {
             chunks: 'all',
         },
     },
+    devtool: 'source-map',
 }
 
 export default function() {
